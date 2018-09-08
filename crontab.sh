@@ -1,0 +1,1 @@
+@reboot ~/redis-db-scoket-cahce/socket-server.py >> ~/redis-db-scoket-cahce/logs/server-log.out 2>&1
