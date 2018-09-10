@@ -81,21 +81,23 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
                 try:
 
-                    # Split out the message by ,
-                    temp = self.data.split(',')
+                    # If message is not the heartbeat:
+                    if self.data != "HB":
 
-                    # Get the lane assigned to tote
-                    lane = get_tote_lane(temp[1])
+                        # Split out the message by ,
+                        temp = self.data.split(',')
 
-                    # Construct return message
-                    message = temp[0] + "," + str(lane)
+                        # Get the lane assigned to tote
+                        lane = get_tote_lane(temp[1])
+
+                        # Construct return message
+                        message = temp[0] + "," + str(lane)
+                        self.request.sendall(message)
 
                 except Exception as e:
 
                     message = "Invalid message received from client.  Expecting nnn,TOTE-nnnn. Error:" + str(e)
-
-                # just send back the same data, but upper-cased
-                self.request.sendall(message)
+                    self.request.sendall(message)
 
         except Exception as e:
 
@@ -105,7 +107,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 if __name__ == "__main__":
 
     # Set the host and port
-    HOST, PORT = "0.0.0.0", 9999
+    HOST, PORT = "", 9000
 
     # Create the server
     server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
