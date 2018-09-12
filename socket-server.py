@@ -42,7 +42,7 @@ except Exception as e:
 def get_tote_lane(tote):
 
     # Respond with lane 10 for no scan message
-    if tote == "??????????":
+    if tote == "?????????":
 
         return 10
 
