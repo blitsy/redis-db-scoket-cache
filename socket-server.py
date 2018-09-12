@@ -41,6 +41,11 @@ except Exception as e:
 # Gets the lane from tote stored in Redis
 def get_tote_lane(tote):
 
+    # Respond with lane 10 for no scan message
+    if tote == "??????????":
+
+        return 10
+
     # Split the TOTE to get its ID
     temp = tote.split('-')
 
@@ -112,6 +117,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                         # Construct return message
                         message = temp[0] + "," + str(lane)
                         self.request.sendall(message)
+
+                        write_log("Responded with: " + message)
 
                 except Exception as e:
 
