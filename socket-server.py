@@ -1,6 +1,25 @@
 import SocketServer
 import redis
 import json
+import logging
+import time
+
+# Init Logging
+logging.basicConfig(filename='server_out.log', level=logging.DEBUG)
+
+
+# Logging function
+def write_log(message):
+
+    ts = time.gmtime()
+    time_readable = time.strftime("%c", ts)
+
+    log_message = time_readable + ": " + message
+
+    logging.info(log_message)
+
+    print (log_message)
+
 
 # Init Redis
 try:
@@ -11,11 +30,11 @@ try:
         db=1
     )
 
-    print "Connected to Redis!"
+    write_log("Connected to Redis!")
 
 except Exception as e:
 
-    print("ERROR :( - Could not connect to Redis: " + str(e))
+    write_log("ERROR :( - Could not connect to Redis: " + str(e))
     raise Exception
 
 
@@ -26,16 +45,16 @@ def get_tote_lane(tote):
     temp = tote.split('-')
 
     # Print tote ID
-    print "Tote ID: " + str(temp[1])
+    write_log("Tote ID: " + str(temp[1]))
 
     # Get the redis entry for this tote and print
     redis_entry = r.get(str(temp[1]))
-    print "Redis Entry: " + str(redis_entry)
+    write_log("Redis Entry: " + str(redis_entry))
 
     # If no record, return 10
     if redis_entry is None:
 
-        print "No redis entry for TOTE-" + str(temp[1])
+        write_log("No redis entry for TOTE-" + str(temp[1]))
         return 10
 
     # Parse the redis response
@@ -43,7 +62,7 @@ def get_tote_lane(tote):
 
     # Get the lane from the redis response and print
     lane = json_res['lane']
-    print "TOTE assigned to putwall #: " + str(lane)
+    write_log("TOTE assigned to putwall #: " + str(lane))
 
     if lane is None:
 
@@ -76,8 +95,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                 self.data = self.request.recv(1024).strip()
 
                 # Print the host and message
-                print "{} wrote:".format(self.client_address[0])
-                print self.data
+                write_log("{} sent:".format(self.client_address[0]))
+                write_log(self.data)
 
                 try:
 
@@ -96,18 +115,18 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
                 except Exception as e:
 
-                    message = "Invalid message received from client.  Expecting nnn,TOTE-nnnn. Error:" + str(e)
+                    message = "000,10"
                     self.request.sendall(message)
 
         except Exception as e:
 
-            print str(e)
+            write_log(str(e))
 
 
 if __name__ == "__main__":
 
     # Set the host and port
-    HOST, PORT = "", 9000
+    HOST, PORT = "0.0.0.0", 9000
 
     # Create the server
     server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
